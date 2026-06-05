@@ -4,8 +4,20 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{{ dog_name }}</title>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 2rem; }
+    .door {
+      display: block; padding: 1rem; margin: 1rem 0;
+      text-align: center; font-size: 1.2rem;
+      border: 2px solid #333; border-radius: 8px;
+      text-decoration: none; color: #333;
+    }
+  </style>
 </head>
 <body>
   <h1>{{ dog_name }}</h1>
+  <p>Who's looking?</p>
+  <a class="door" href="/d/{{ token }}/vet">Continue as a vet</a>
+  <a class="door" href="/d/{{ token }}/public">I'm not a vet — whose dog is this?</a>
 </body>
 </html>

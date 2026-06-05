@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Contact {{ dog_name }}'s owner</title>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 2rem; }
+    .contact { font-size: 1.2rem; margin: 0.5rem 0; }
+  </style>
+</head>
+<body>
+  <h1>{{ dog_name }}</h1>
+  <p>If you've found this dog, please contact the owner:</p>
+  <p class="contact"><strong>{{ owner_name }}</strong></p>
+  <p class="contact"><a href="tel:{{ phone }}">{{ phone }}</a></p>
+  {% if email %}<p class="contact"><a href="mailto:{{ email }}">{{ email }}</a></p>{% endif %}
+</body>
+</html>
