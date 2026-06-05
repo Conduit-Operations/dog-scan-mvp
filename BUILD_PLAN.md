@@ -2,9 +2,9 @@
 
 Reference `PRD.md` for what the product does and why. Reference `ARCHITECTURE.md` for how each piece is built — schema, routes, the edit path. Each phase below points to those files rather than repeating them.
 
-## Current Build Status — Phase 5 complete (email plumbing proven)
+## Current Build Status — Phase 6 complete · the loop is built
 
-The full loop is wired: a vet's edit saves, is logged, and fires a best-effort email — proven live that a failed send never touches the save. Building the loop: scan → see the record → edit → get notified. **On Phase 6** — open-event logging and polish.
+The loop runs end to end: scan a tag → see the record (owner contact for the public, or the full clinical record behind a vet login) → edit it (saved, logged, best-effort email) → and every scan is now logged. Per "After The Loop" below, the next step is reflection, not more features.
 
 There is no Version History table and no HISTORY.md yet — both arrive when there's a second version to track and completed work to archive.
 
@@ -60,6 +60,8 @@ Wire Resend. After a successful save, send the confirmation email naming the cha
 Write an `open` event each time a tag is scanned (ARCHITECTURE §5, §8) — logged, never emailed. Tidy any rough edges surfaced while testing the earlier phases.
 
 **Test:** scan a tag, then confirm (via a quick database look or a temporary readout) that an `open` event was recorded and that no email was sent for it.
+
+**Status: ✅ Done.** Every scan logs an `open` event (actor: vet or public, no clinical data) — never emailed — and a vet-only Recent activity view shows the scan/edit history. Verified live by scanning Rex's printed QR and watching the scan appear in his activity. The favicon 404 was silenced too.
 
 ## After The Loop
 
