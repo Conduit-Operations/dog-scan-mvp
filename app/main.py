@@ -3,7 +3,7 @@ import secrets
 from contextlib import asynccontextmanager
 from pathlib import Path
 
-from fastapi import FastAPI, Form, Request
+from fastapi import FastAPI, Form, Request, Response
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy import text
@@ -45,6 +45,12 @@ def root():
     return {"service": "Dog Tag MVP", "status": "running"}
 
 
+@app.get("/favicon.ico")
+def favicon():
+    # Browsers always ask for this; answer quietly instead of logging a 404.
+    return Response(status_code=204)
+
+
 @app.get("/health")
 def health():
     database = "unreachable"
@@ -60,11 +66,17 @@ def health():
 
 @app.get("/d/{token}", response_class=HTMLResponse)
 def scan(request: Request, token: str):
-    # Resolve the scanned code to one dog and show the two-door fork (vet / not-a-vet).
-    # An unknown code shows a friendly "we don't recognise this tag" page, never an error.
+    # Resolve the scanned code to one dog, log the scan as an `open` event, and
+    # show the two-door fork. An unknown code shows the friendly not-found page.
+    actor = "vet" if request.session.get("vet") else "public"
     with SessionLocal() as session:
         dog = session.query(Dog).filter(Dog.token == token).first()
-        name = dog.name if dog else None
+        if dog is None:
+            name = None
+        else:
+            name = dog.name
+            session.add(Event(dog_id=dog.id, type="open", actor=actor))
+            session.commit()
 
     if name is None:
         return templates.TemplateResponse(
@@ -137,6 +149,26 @@ def vet_view(request: Request, token: str):
             data = None
         else:
             owner = session.query(Owner).filter(Owner.id == dog.owner_id).first()
+            events = (
+                session.query(Event)
+                .filter(Event.dog_id == dog.id)
+                .order_by(Event.id.desc())
+                .limit(15)
+                .all()
+            )
+            activity = [
+                {
+                    "type": e.type,
+                    "field": e.field,
+                    "old_value": e.old_value,
+                    "new_value": e.new_value,
+                    "actor": e.actor,
+                    "when": (e.created_at.strftime("%d %b %Y, %H:%M") + " UTC")
+                    if e.created_at
+                    else "",
+                }
+                for e in events
+            ]
             data = {
                 "dog_name": dog.name,
                 "breed": dog.breed,
@@ -145,6 +177,7 @@ def vet_view(request: Request, token: str):
                 "phone": owner.phone,
                 "email": owner.email,
                 "record": dog.record or {},
+                "activity": activity,
                 "token": token,
             }
 

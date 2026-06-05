@@ -14,6 +14,7 @@
       box-sizing: border-box; font-weight: normal; margin-top: 0.2rem;
     }
     button { font-size: 1.1rem; padding: 0.6rem 1.4rem; margin-top: 1.2rem; }
+    .when { color: #888; }
   </style>
 </head>
 <body>
@@ -36,6 +37,22 @@
     </form>
   {% else %}
     <div class="row">No clinical entries yet.</div>
+  {% endif %}
+
+  <h2>Recent activity</h2>
+  {% if activity %}
+    {% for e in activity %}
+      <div class="row">
+        {% if e.type == "open" %}
+          Scanned by {{ "a vet" if e.actor == "vet" else "the public" }}
+        {% else %}
+          {{ e.field }} changed from "{{ e.old_value }}" to "{{ e.new_value }}" by {{ e.actor }}
+        {% endif %}
+        {% if e.when %}<span class="when"> — {{ e.when }}</span>{% endif %}
+      </div>
+    {% endfor %}
+  {% else %}
+    <div class="row">No activity yet.</div>
   {% endif %}
 </body>
 </html>

@@ -2,9 +2,9 @@
 
 Reference `PRD.md` for what the product does and why. Reference `ARCHITECTURE.md` for how each piece is built — schema, routes, the edit path. Each phase below points to those files rather than repeating them.
 
-## Current Build Status — Phase 4 complete
+## Current Build Status — Phase 5 complete (email plumbing proven)
 
-The edit loop works: a logged-in vet changes a field, it saves, and the change is recorded in the log (field, old → new, vet). Non-vets still see only owner contact. Building the loop: scan → see the record → edit → get notified. **On Phase 5** — email on edit.
+The full loop is wired: a vet's edit saves, is logged, and fires a best-effort email — proven live that a failed send never touches the save. Building the loop: scan → see the record → edit → get notified. **On Phase 6** — open-event logging and polish.
 
 There is no Version History table and no HISTORY.md yet — both arrive when there's a second version to track and completed work to archive.
 
@@ -53,6 +53,8 @@ The vet view gains an edit form. Saving writes the new value into the dog's reco
 Wire Resend. After a successful save, send the confirmation email naming the change, in plain language (ARCHITECTURE §9, step 3). The email is best-effort and must never block the save.
 
 **Test:** edit a field and confirm an email arrives within a minute describing the change. Then, to prove the loop-protection invariant (ARCHITECTURE §11), temporarily break `RESEND_API_KEY` and confirm the save *still* succeeds — only the email is missing.
+
+**Status: ✅ Built, best-effort proven; ⚠️ live delivery parked.** An edit fires a Resend email after the save, and a failed send never touches the save — proven live (the deploy logs showed a `403` send failure with the save unaffected). An actual email hasn't been observed landing: Resend's free tier only delivers to the account's own verified address, and the spare domain slot is in use elsewhere. The code is correct and will deliver the moment a matching address or a verified domain is in place.
 
 ### Phase 6 — Open-event logging and polish
 Write an `open` event each time a tag is scanned (ARCHITECTURE §5, §8) — logged, never emailed. Tidy any rough edges surfaced while testing the earlier phases.
