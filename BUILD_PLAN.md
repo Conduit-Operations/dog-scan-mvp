@@ -2,9 +2,9 @@
 
 Reference `PRD.md` for what the product does and why. Reference `ARCHITECTURE.md` for how each piece is built — schema, routes, the edit path. Each phase below points to those files rather than repeating them.
 
-## Current Build Status — Phase 0 complete
+## Current Build Status — Phase 1 complete
 
-The foundation is live: the app deploys on Railway, Postgres is connected, the three tables exist, and the health check returns OK with the database reachable. Building the loop: scan → see the record → edit → get notified. **On Phase 1** — onboard a dog and resolve a scan.
+The foundation is live and the first user-visible slice works: a dog onboarded from the terminal, and scanning its tag on a phone resolves the code to the dog and shows its name (unknown codes get a friendly not-found page). Building the loop: scan → see the record → edit → get notified. **On Phase 2** — the two-door fork and the public door.
 
 There is no Version History table and no HISTORY.md yet — both arrive when there's a second version to track and completed work to archive.
 
@@ -25,6 +25,8 @@ Stand up the skeleton. FastAPI app boots and deploys on Railway; Postgres connec
 The terminal script creates a dog and prints its scan URL (ARCHITECTURE §10). Visiting `/d/{token}` resolves the token and shows a bare page with the dog's name (ARCHITECTURE §7–§8). An unknown token shows the friendly "we don't recognise this tag" page, not an error.
 
 **Test:** run `onboard.py` for a test dog (Rex), open the printed URL on a phone, see Rex's name. Then change the URL to a made-up token and confirm the friendly not-found page appears.
+
+**Status: ✅ Done.** Rex onboarded to the live database; scanning his tag on a phone shows his name, and a made-up code shows the friendly "we don't recognise this tag" page.
 
 ### Phase 2 — The fork and the public door
 The landing page offers the two doors (ARCHITECTURE §8). The public door opens a page showing the owner's contact details only — and nothing medical anywhere on it (ARCHITECTURE §9; this is the PRD §2 third idea made real).
