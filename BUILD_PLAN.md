@@ -2,9 +2,9 @@
 
 Reference `PRD.md` for what the product does and why. Reference `ARCHITECTURE.md` for how each piece is built — schema, routes, the edit path. Each phase below points to those files rather than repeating them.
 
-## Current Build Status — Phase 3 complete
+## Current Build Status — Phase 4 complete
 
-A vet can log in (shared password, 8-hour signed session) and read a dog's full record behind the gate, while non-vets still see only owner contact. Building the loop: scan → see the record → edit → get notified. **On Phase 4** — edit and log.
+The edit loop works: a logged-in vet changes a field, it saves, and the change is recorded in the log (field, old → new, vet). Non-vets still see only owner contact. Building the loop: scan → see the record → edit → get notified. **On Phase 5** — email on edit.
 
 There is no Version History table and no HISTORY.md yet — both arrive when there's a second version to track and completed work to archive.
 
@@ -46,6 +46,8 @@ Login with the shared password sets the 8-hour session cookie (ARCHITECTURE §9)
 The vet view gains an edit form. Saving writes the new value into the dog's record and writes an `edit` event — what changed, from what, to what (ARCHITECTURE §9, steps 1–2).
 
 **Test:** edit a field (say the weight), reload the page, and confirm the new value persists.
+
+**Status: ✅ Done.** Editing Rex's weight on a phone saved and persisted (32 kg → 33 kg), and the change was recorded as an `edit` event. Edits without a session are bounced to login.
 
 ### Phase 5 — Email on edit
 Wire Resend. After a successful save, send the confirmation email naming the change, in plain language (ARCHITECTURE §9, step 3). The email is best-effort and must never block the save.
