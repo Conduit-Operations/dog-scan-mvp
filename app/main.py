@@ -1,9 +1,14 @@
 from contextlib import asynccontextmanager
+from pathlib import Path
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from fastapi.responses import HTMLResponse
+from fastapi.templating import Jinja2Templates
 from sqlalchemy import text
 
-from app.db import create_tables, engine
+from app.db import Dog, SessionLocal, create_tables, engine
+
+templates = Jinja2Templates(directory=str(Path(__file__).parent / "templates"))
 
 
 @asynccontextmanager
@@ -36,3 +41,20 @@ def health():
         except Exception:
             database = "unreachable"
     return {"status": "ok", "database": database}
+
+
+@app.get("/d/{token}", response_class=HTMLResponse)
+def scan(request: Request, token: str):
+    # Resolve the scanned code to one dog and show its name. An unknown code
+    # shows a friendly "we don't recognise this tag" page, never an error.
+    with SessionLocal() as session:
+        dog = session.query(Dog).filter(Dog.token == token).first()
+        name = dog.name if dog else None
+
+    if name is None:
+        return templates.TemplateResponse(
+            request=request, name="not_found.html", status_code=404
+        )
+    return templates.TemplateResponse(
+        request=request, name="landing.html", context={"dog_name": name}
+    )

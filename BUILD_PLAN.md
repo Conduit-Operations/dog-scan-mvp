@@ -2,11 +2,11 @@
 
 Reference `PRD.md` for what the product does and why. Reference `ARCHITECTURE.md` for how each piece is built — schema, routes, the edit path. Each phase below points to those files rather than repeating them.
 
-## Current Build Status — not started
+## Current Build Status — Phase 0 complete
 
-Nothing is built yet. Building the loop: scan → see the record → edit → get notified. **On Phase 0.**
+The foundation is live: the app deploys on Railway, Postgres is connected, the three tables exist, and the health check returns OK with the database reachable. Building the loop: scan → see the record → edit → get notified. **On Phase 1** — onboard a dog and resolve a scan.
 
-There is no Version History table and no HISTORY.md yet — both arrive when there's a second version to track and completed work to archive. For now this file is entirely forward-looking.
+There is no Version History table and no HISTORY.md yet — both arrive when there's a second version to track and completed work to archive.
 
 ## How To Read A Phase
 
@@ -18,6 +18,8 @@ Each phase is a coherent step that ends in something testable on a phone or in a
 Stand up the skeleton. FastAPI app boots and deploys on Railway; Postgres connected; the three tables created (ARCHITECTURE §5); a health check route responds.
 
 **Test:** the deployed URL's health check returns OK, and the database is reachable. Nothing visible to a user yet — this just proves the ground is solid.
+
+**Status: ✅ Done.** Deployed on Railway; `/health` returns OK with the database connected.
 
 ### Phase 1 — Onboard a dog, resolve a scan
 The terminal script creates a dog and prints its scan URL (ARCHITECTURE §10). Visiting `/d/{token}` resolves the token and shows a bare page with the dog's name (ARCHITECTURE §7–§8). An unknown token shows the friendly "we don't recognise this tag" page, not an error.
