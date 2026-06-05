@@ -82,6 +82,7 @@ The change log. Every edit writes one row. This table is the record's history an
 - `DATABASE_URL` — provided by Railway.
 - `RESEND_API_KEY` — for the outbound email.
 - `VET_PASSWORD` — the single shared password standing in for real vet accounts.
+- `SESSION_SECRET` — signs the vet session cookie so it can't be forged (see §9).
 - `NOTIFICATION_EMAIL` — where edit confirmations are sent.
 - `BASE_URL` — used by `onboard.py` to build the printable scan URL.
 
