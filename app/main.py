@@ -10,6 +10,7 @@ from sqlalchemy import text
 from starlette.middleware.sessions import SessionMiddleware
 
 from app.db import Dog, Event, Owner, SessionLocal, create_tables, engine
+from app.notify import send_edit_email
 
 templates = Jinja2Templates(directory=str(Path(__file__).parent / "templates"))
 
@@ -157,11 +158,14 @@ def vet_view(request: Request, token: str):
 @app.post("/d/{token}/edit")
 async def edit(request: Request, token: str):
     # The edit path (ARCHITECTURE §9): write the record first, then the change
-    # log. The email is Phase 5 and must never block this save. Vet-session only.
+    # log, and only then the email — which is best-effort and must never delay
+    # or undo the save. Vet-session only.
     if not request.session.get("vet"):
         return RedirectResponse(f"/login?token={token}", status_code=303)
 
     form = await request.form()
+    dog_name = None
+    changes = []
     with SessionLocal() as session:
         dog = session.query(Dog).filter(Dog.token == token).first()
         if dog is None:
@@ -169,8 +173,8 @@ async def edit(request: Request, token: str):
                 request=request, name="not_found.html", status_code=404
             )
 
+        dog_name = dog.name
         record = dict(dog.record or {})
-        changes = []
         for field, old in list(record.items()):
             submitted = form.get(field)
             if submitted is not None and submitted != old:
@@ -191,5 +195,12 @@ async def edit(request: Request, token: str):
                     )
                 )
             session.commit()
+
+    # The save is durable. Now the email — best-effort, never allowed to break it.
+    if changes:
+        try:
+            send_edit_email(dog_name, changes)
+        except Exception:
+            pass
 
     return RedirectResponse(f"/d/{token}/vet", status_code=303)
