@@ -2,9 +2,9 @@
 
 Reference `PRD.md` for what the product does and why. Reference `ARCHITECTURE.md` for how each piece is built — schema, routes, the edit path. Each phase below points to those files rather than repeating them.
 
-## Current Build Status — Phase 1 complete
+## Current Build Status — Phase 2 complete
 
-The foundation is live and the first user-visible slice works: a dog onboarded from the terminal, and scanning its tag on a phone resolves the code to the dog and shows its name (unknown codes get a friendly not-found page). Building the loop: scan → see the record → edit → get notified. **On Phase 2** — the two-door fork and the public door.
+The two-door fork is live: scanning a tag offers "continue as a vet" or "I'm not a vet", and the public door shows the owner's contact only — no medical data. Building the loop: scan → see the record → edit → get notified. **On Phase 3** — vet login and the record (read-only).
 
 There is no Version History table and no HISTORY.md yet — both arrive when there's a second version to track and completed work to archive.
 
@@ -32,6 +32,8 @@ The terminal script creates a dog and prints its scan URL (ARCHITECTURE §10). V
 The landing page offers the two doors (ARCHITECTURE §8). The public door opens a page showing the owner's contact details only — and nothing medical anywhere on it (ARCHITECTURE §9; this is the PRD §2 third idea made real).
 
 **Test:** from the landing page, take the "I'm not a vet" door; confirm you see the owner's phone and *no* clinical information.
+
+**Status: ✅ Done.** Scanning Rex shows the two doors; the public door shows Jane Doe's phone and nothing medical (verified by planting clinical data and confirming it never appears). The vet door awaits Phase 3.
 
 ### Phase 3 — Vet login and the record (read-only)
 Login with the shared password sets the 8-hour session cookie (ARCHITECTURE §9). The vet door opens the full record to read. Visiting the vet view without a session redirects to login.
