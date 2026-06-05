@@ -8,6 +8,12 @@
     body { font-family: system-ui, sans-serif; margin: 2rem; }
     h2 { margin-top: 1.5rem; border-bottom: 1px solid #ccc; padding-bottom: 0.2rem; }
     .row { margin: 0.4rem 0; }
+    label { display: block; font-weight: bold; margin-top: 0.8rem; }
+    input[type=text] {
+      font-size: 1.1rem; padding: 0.5rem; width: 100%;
+      box-sizing: border-box; font-weight: normal; margin-top: 0.2rem;
+    }
+    button { font-size: 1.1rem; padding: 0.6rem 1.4rem; margin-top: 1.2rem; }
   </style>
 </head>
 <body>
@@ -20,9 +26,14 @@
 
   <h2>Clinical record</h2>
   {% if record %}
-    {% for key, value in record.items() %}
-      <div class="row"><strong>{{ key }}:</strong> {{ value }}</div>
-    {% endfor %}
+    <form method="post" action="/d/{{ token }}/edit">
+      {% for key, value in record.items() %}
+        <label>{{ key }}
+          <input type="text" name="{{ key }}" value="{{ value }}">
+        </label>
+      {% endfor %}
+      <button type="submit">Save</button>
+    </form>
   {% else %}
     <div class="row">No clinical entries yet.</div>
   {% endif %}

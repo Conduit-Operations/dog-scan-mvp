@@ -2,9 +2,9 @@
 
 Reference `PRD.md` for what the product does and why. Reference `ARCHITECTURE.md` for how each piece is built — schema, routes, the edit path. Each phase below points to those files rather than repeating them.
 
-## Current Build Status — Phase 2 complete
+## Current Build Status — Phase 3 complete
 
-The two-door fork is live: scanning a tag offers "continue as a vet" or "I'm not a vet", and the public door shows the owner's contact only — no medical data. Building the loop: scan → see the record → edit → get notified. **On Phase 3** — vet login and the record (read-only).
+A vet can log in (shared password, 8-hour signed session) and read a dog's full record behind the gate, while non-vets still see only owner contact. Building the loop: scan → see the record → edit → get notified. **On Phase 4** — edit and log.
 
 There is no Version History table and no HISTORY.md yet — both arrive when there's a second version to track and completed work to archive.
 
@@ -39,6 +39,8 @@ The landing page offers the two doors (ARCHITECTURE §8). The public door opens 
 Login with the shared password sets the 8-hour session cookie (ARCHITECTURE §9). The vet door opens the full record to read. Visiting the vet view without a session redirects to login.
 
 **Test:** take the vet door, enter the password, see the full record. Then open the vet view in a fresh browser with no session and confirm you're redirected to login.
+
+**Status: ✅ Done.** Logging in with the shared password opens Rex's full record behind the 8-hour session; without a session the vet view redirects to login. `VET_PASSWORD` and `SESSION_SECRET` are set in Railway.
 
 ### Phase 4 — Edit and log
 The vet view gains an edit form. Saving writes the new value into the dog's record and writes an `edit` event — what changed, from what, to what (ARCHITECTURE §9, steps 1–2).

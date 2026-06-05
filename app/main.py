@@ -9,7 +9,7 @@ from fastapi.templating import Jinja2Templates
 from sqlalchemy import text
 from starlette.middleware.sessions import SessionMiddleware
 
-from app.db import Dog, Owner, SessionLocal, create_tables, engine
+from app.db import Dog, Event, Owner, SessionLocal, create_tables, engine
 
 templates = Jinja2Templates(directory=str(Path(__file__).parent / "templates"))
 
@@ -144,6 +144,7 @@ def vet_view(request: Request, token: str):
                 "phone": owner.phone,
                 "email": owner.email,
                 "record": dog.record or {},
+                "token": token,
             }
 
     if data is None:
@@ -151,3 +152,44 @@ def vet_view(request: Request, token: str):
             request=request, name="not_found.html", status_code=404
         )
     return templates.TemplateResponse(request=request, name="vet.html", context=data)
+
+
+@app.post("/d/{token}/edit")
+async def edit(request: Request, token: str):
+    # The edit path (ARCHITECTURE §9): write the record first, then the change
+    # log. The email is Phase 5 and must never block this save. Vet-session only.
+    if not request.session.get("vet"):
+        return RedirectResponse(f"/login?token={token}", status_code=303)
+
+    form = await request.form()
+    with SessionLocal() as session:
+        dog = session.query(Dog).filter(Dog.token == token).first()
+        if dog is None:
+            return templates.TemplateResponse(
+                request=request, name="not_found.html", status_code=404
+            )
+
+        record = dict(dog.record or {})
+        changes = []
+        for field, old in list(record.items()):
+            submitted = form.get(field)
+            if submitted is not None and submitted != old:
+                changes.append((field, old, submitted))
+                record[field] = submitted
+
+        if changes:
+            dog.record = record  # reassign so SQLAlchemy tracks the JSON change
+            for field, old, new in changes:
+                session.add(
+                    Event(
+                        dog_id=dog.id,
+                        type="edit",
+                        field=field,
+                        old_value=str(old),
+                        new_value=new,
+                        actor="vet",
+                    )
+                )
+            session.commit()
+
+    return RedirectResponse(f"/d/{token}/vet", status_code=303)
