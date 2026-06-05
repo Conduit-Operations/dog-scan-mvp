@@ -38,3 +38,6 @@ htmlcov/
 # OS cruft
 .DS_Store
 Thumbs.db
+
+# Generated QR codes
+qrcodes/

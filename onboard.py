@@ -1,15 +1,19 @@
-"""Add a dog (and its owner) to the database, then print its scan URL.
+"""Add a dog (and its owner) to the database, then print its scan URL and save a QR.
 
 Usage:
     python onboard.py --name "Rex" --breed "Labrador" \
         --owner-name "Jane Doe" --owner-phone "+61..." [--owner-email "..."]
 
 There is no onboarding screen by design — dogs are added from the terminal for now.
+Each run also saves a QR image of the scan URL into ./qrcodes, ready to print as the tag.
 """
 
 import argparse
 import os
 import secrets
+from pathlib import Path
+
+import qrcode
 
 from app.db import Dog, Owner, SessionLocal
 
@@ -55,10 +59,21 @@ def main() -> None:
         session.commit()
 
     base_url = os.environ.get("BASE_URL", "http://localhost:8000").rstrip("/")
+    scan_url = f"{base_url}/d/{token}"
+
+    # Save a QR image of the scan URL — one per dog, ready to print as the tag.
+    qr_dir = Path("qrcodes")
+    qr_dir.mkdir(exist_ok=True)
+    safe_name = "".join(ch if ch.isalnum() else "_" for ch in args.name) or "dog"
+    qr_path = (qr_dir / f"{safe_name}-{token}.png").resolve()
+    qrcode.make(scan_url).save(qr_path)
+
     print(f"Added {args.name} ({args.breed}). Owner: {args.owner_name}.")
     print()
-    print("Scan URL (turn this into a QR code):")
-    print(f"{base_url}/d/{token}")
+    print("Scan URL:")
+    print(scan_url)
+    print()
+    print(f"QR code saved to: {qr_path}")
 
 
 if __name__ == "__main__":
